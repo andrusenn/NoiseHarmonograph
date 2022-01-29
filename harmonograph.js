@@ -1,23 +1,22 @@
 /*
-Noise Harmonograph
+Perpetual noise Harmonograph
 
-The armograph is a generation machine that works with pendulums.
+The Harmonograph is a gen drawing machine that works with pendulums.
 The duration of the movement depends on the input forces and random environmental conditions.
-But in the digital world, it could be forever.
+But in the digital world, we can make it perpetual.
 Here is an infinite harmonograph breathing in a state of noise.
+
+2 pendulum fot the Harmonograph.
+3 separate layers.
 
 Keys
 
-[p] -> pause/play
-[s] -> save / download
 [1][2][3] -> show/hide layers
 [4] -> 1:1
 [5] -> 16:9
 [6] -> 9:16
-
-Mobile
-Touch for a while on the canvas -> save/download
-
+[p] -> pause/play
+[s] -> save / download
 
 Andrés Senn - 2022 - https://www.fxhash.xyz/u/andrusenn
 */
@@ -39,8 +38,8 @@ function setup() {
 	// --------------------------
 	cv = createCanvas(AR.x, AR.y);
 	cv.parent("cv");
-	cv.id("Noise___Harmonograph");
-	cv.class("Noise___Harmonograph");
+	cv.id("Perpetual_Noise_Harmonograph");
+	cv.class("Perpetual_Noise_Harmonograph");
 	pixelDensity(1);
 	// Layers ----------------------------
 	layer1 = createGraphics(width, height);
@@ -52,27 +51,25 @@ function setup() {
 	// fxhash features
 	window.$fxhashFeatures = {
 		seed: seed,
-		initial_rotation: fxrand() * TAU,
-		noise_sig_pos: map(fxrand(), 0, 1, -1000, 1000),
-		background_noise_size: map(fxrand(), 0, 1, 0.0005, 0.002),
 		pendulum_center_x: map(fxrand(), 0, 1, -width / 2, width / 2),
-		noise_wave_diameter: map(
-			fxrand(),
-			0,
-			1,
-			width * 0.3,
-			width * 0.6 - 100,
-		),
+		pendulum1_theta_vel: radians(map(fxrand(), 0, 1, 0.001, 0.002)),
+		pendulum1_phi_vel: radians(map(fxrand(), 0, 1, 0.001, 0.002)),
+		pendulum2_alpha_vel: radians(map(fxrand(), 0, 1, 0.1, 0.2)),
+		initial_rotation: fxrand() * TAU,
+		pendulum_friction: map(fxrand(), 0, 1, 0.999998, 0.999997),
+		noise_wave_diameter: map(fxrand(), 0, 1, 2160 * 0.2, 2160 * 0.5),
+		background_noise_size: map(fxrand(), 0, 1, 0.0005, 0.001),
 	};
 	background(0);
-	//
+	// Initial rotation
 	rot = window.$fxhashFeatures.initial_rotation;
+	// Init draw
 	init();
-	//
-	document.title = `Noise Harmonograph | Andr\u00e9s Senn | 2022`;
+	// ----------------------------
+	document.title = `\u007e Perpetual Noise Harmonograph \u007e | Andr\u00e9s Senn | 2022`;
 	console.log(
-		`%c Noise Harmonograph | Andr\u00e9s Senn | fxhash 01/2022 | Projet code: https://github.com/andrusenn/NoiseHarmonograph`,
-		"background:#eee;border-radius:10px;background-size:15%;font-color:#222;padding:10px;font-size:15px;text-align:center;",
+		`%c Perpetual Noise Harmonograph | Andr\u00e9s Senn | fxhash 01/2022 | Projet code: https://github.com/andrusenn/NoiseHarmonograph`,
+		"background:#111;border-radius:10px;background-size:15%;color:#fff;padding:10px;font-size:15px;text-align:center;",
 	);
 }
 function init() {
@@ -82,10 +79,7 @@ function init() {
 	nsig = createGraphics(AR.x, AR.y);
 	drawBg();
 	// Hash signature & just noise (I like it)
-	noisemix(
-		width / 2,
-		height / 2 + window.$fxhashFeatures.noise_sig_pos,
-	);
+	noisemix(width / 2, height / 2 + 1000);
 }
 function draw() {
 	background(0);
@@ -134,19 +128,24 @@ function draw() {
 	}
 }
 function noisemix(_x, _y) {
+	const sigRot = [0,90,180,270];
 	nsig.push();
+	nsig.translate(width / 2, height / 2);
+	nsig.rotate(radians(sigRot[int(floor(random(0,4)))]));
+	nsig.translate(-width / 2, -height / 2);
+
 	nsig.rectMode(CENTER);
 	let chars = fxhash.split("");
 	let x = 0;
 	let y = 0;
-	let _w = random(500, 1000);
+	let _w = random(216, 2160 * 0.8);
 	let _h = random(10, 20);
 	for (let j = 0; j < 5; j++) {
 		for (let i = 0; i < 10; i++) {
 			let col = map(chars[i + j * 10].charCodeAt(0), 0, 122, 0, 255);
 			nsig.fill(col);
 			nsig.noStroke();
-			nsig.rect(x + _x - _w / 2, y + _y - _h / 2 + 50, 10, 5);
+			nsig.rect(x + _x - 150, y + _y - _h / 2, 10, 5);
 			x = i * 30;
 		}
 		y = j * 5;
@@ -164,7 +163,7 @@ function noisemix(_x, _y) {
 			}
 			nsig.noStroke();
 			nsig.fill(c);
-			nsig.rect(x, y, s + random(1, 50), s);
+			nsig.rect(x, y - 50, s + random(1, 50), s);
 		}
 	}
 	nsig.pop();
@@ -224,16 +223,16 @@ function drawBg() {
 	}
 	layer2.pop();
 
-	// Layer 2 -> HArmo settings -----------------------
+	// Layer 2 -> Harmo settings -----------------------
 	harmo = new Harmonograph();
 	// Pendulum 1 center
 	harmo.cx = window.$fxhashFeatures.pendulum_center_x;
 	// Pendulum asc
-	harmo.vel_theta = radians(random(0.001, 0.002));
-	harmo.vel_phi = radians(random(0.001, 0.002));
-	harmo.vel_alpha = radians(random(0.1, 0.2));
+	harmo.vel_theta = window.$fxhashFeatures.pendulum1_theta_vel;
+	harmo.vel_phi = window.$fxhashFeatures.pendulum1_phi_vel;
+	harmo.vel_alpha = window.$fxhashFeatures.pendulum2_alpha_vel;
 	// Friction
-	harmo.friction = random(0.999998, 0.999997);
+	harmo.friction = window.$fxhashFeatures.pendulum_friction;
 	// Noise resolution
 	harmo.noise_size2x = random(0.001, 0.002);
 	harmo.noise_size2y = random(0.001, 0.002);
@@ -252,20 +251,20 @@ function getPrint() {
 		"" +
 		second() +
 		"";
-	saveCanvas(cv, "NH_" + date, "png");
+	saveCanvas(cv, "PNH_" + date, "png");
 }
 function keyReleased() {
-	if (key == "4") {
+	if (key == "4" && AR != SQ) {
 		AR = SQ;
 		resizeCanvas(AR.x, AR.y);
 		init();
 	}
-	if (key == "5") {
+	if (key == "5" && AR != LS) {
 		AR = LS;
 		resizeCanvas(AR.x, AR.y);
 		init();
 	}
-	if (key == "6") {
+	if (key == "6" && AR != PT) {
 		AR = PT;
 		resizeCanvas(AR.x, AR.y);
 		init();

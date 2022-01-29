@@ -1,0 +1,26 @@
+body {
+	padding: 0;
+	margin: 0;
+	background: #000;
+	height: 100%;
+	width: 100%;
+	overscroll-behavior: contain;
+}
+#cv {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100vw;
+	height: 100vh;
+}
+#cv canvas {
+	margin: auto;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	object-fit: contain;
+	object-position: center;
+	max-width: 100%;
+	max-height: 100%;
+}

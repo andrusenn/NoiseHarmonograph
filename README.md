@@ -11,3 +11,5 @@ Here is an infinite harmonograph breathing in a state of noise.
 3 separate layers.
 
 Andrés Senn - 2022 - https://www.fxhash.xyz/u/andrusenn
+
+Licence: (CC BY-SA 4.0)

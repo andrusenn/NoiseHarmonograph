@@ -19,6 +19,7 @@ Keys
 [s] -> save / download
 
 Andrés Senn - 2022 - https://www.fxhash.xyz/u/andrusenn
+Licence: (CC BY-SA 4.0)
 */
 let harmo,
 	pause = false;

@@ -17,9 +17,13 @@ Keys
 [6] -> 9:16
 [p] -> pause/play
 [s] -> save / download
+[ARROW UP] -> Faster (more laps)
+[ARROW DOWN] -> Slower (fewer laps)
 
 Andrés Senn - 2022 - https://www.fxhash.xyz/u/andrusenn
-Licence: (CC BY-SA 4.0)
+
+License: (CC BY-SA 4.0)
+Make your own style :)
 */
 let harmo,
 	pause = false;
@@ -30,6 +34,8 @@ let show_l1 = true;
 let show_l2 = true;
 let show_l3 = true;
 let AR, LS, PT, SQ;
+let laps = 600;
+let pic_preview = false;
 function setup() {
 	// Ratios -------------------
 	SQ = createVector(2160, 2160);
@@ -52,24 +58,23 @@ function setup() {
 	// fxhash features
 	window.$fxhashFeatures = {
 		seed: seed,
-		pendulum_center_x: map(fxrand(), 0, 1, -width / 2, width / 2),
-		pendulum1_theta_vel: radians(map(fxrand(), 0, 1, 0.001, 0.002)),
-		pendulum1_phi_vel: radians(map(fxrand(), 0, 1, 0.001, 0.002)),
-		pendulum2_alpha_vel: radians(map(fxrand(), 0, 1, 0.1, 0.2)),
-		initial_rotation: fxrand() * TAU,
-		pendulum_friction: map(fxrand(), 0, 1, 0.999998, 0.999997),
-		noise_wave_diameter: map(fxrand(), 0, 1, 2160 * 0.2, 2160 * 0.5),
-		background_noise_size: map(fxrand(), 0, 1, 0.0005, 0.001),
+		"Pendulum 1 theta vel": radians(map(fxrand(), 0, 1, 0.001, 0.002)),
+		"Pendulum 1 phi vel": radians(map(fxrand(), 0, 1, 0.001, 0.002)),
+		"Pendulum 2 angle vel": radians(map(fxrand(), 0, 1, 0.1, 0.2)),
+		"Initial rotation": fxrand() * TAU,
+		"Pendulum friction": map(fxrand(), 0, 1, 0.999998, 0.999997),
+		"Noise wave diameter of layer 2": map(fxrand(), 0, 1, 2160 * 0.2, 2160 * 0.5),
+		"Background noise size of layer 1": map(fxrand(), 0, 1, 0.0005, 0.001),
 	};
 	background(0);
 	// Initial rotation
-	rot = window.$fxhashFeatures.initial_rotation;
+	rot = window.$fxhashFeatures["Initial rotation"];
 	// Init draw
 	init();
 	// ----------------------------
 	document.title = `\u007e Perpetual Noise Harmonograph \u007e | Andr\u00e9s Senn | 2022`;
 	console.log(
-		`%c Perpetual Noise Harmonograph | Andr\u00e9s Senn | fxhash 01/2022 | Projet code: https://github.com/andrusenn/NoiseHarmonograph`,
+		`%c Perpetual Noise Harmonograph | Andr\u00e9s Senn | fxhash 02/2022 | Projet code: https://github.com/andrusenn/NoiseHarmonograph`,
 		"background:#111;border-radius:10px;background-size:15%;color:#fff;padding:10px;font-size:15px;text-align:center;",
 	);
 }
@@ -89,7 +94,7 @@ function draw() {
 		layer3.translate(width / 2, height / 2);
 		layer3.rotate(rot);
 		layer3.translate(-width / 2, -height / 2);
-		for (let i = 0; i < 500; i++) {
+		for (let i = 0; i < laps; i++) {
 			harmo.update();
 			layer3.push();
 			layer3.translate(2160 / 2, 2160 / 2);
@@ -122,17 +127,19 @@ function draw() {
 	image(nsig, 0, 0);
 
 	// ----------------------
-	if (frameCount == 600) {
-		if (!isFxpreview) {
+	if (frameCount > 400) {
+		if (!isFxpreview && !pic_preview) {
 			fxpreview();
+			// Extra check. In loop method it's scary :0 o maybe no problem :)
+			pic_preview = true;
 		}
 	}
 }
 function noisemix(_x, _y) {
-	const sigRot = [0,90,180,270];
+	const sigRot = [0, 90, 180, 270];
 	nsig.push();
 	nsig.translate(width / 2, height / 2);
-	nsig.rotate(radians(sigRot[int(floor(random(0,4)))]));
+	nsig.rotate(radians(sigRot[int(floor(random(0, 4)))]));
 	nsig.translate(-width / 2, -height / 2);
 
 	nsig.rectMode(CENTER);
@@ -173,7 +180,7 @@ function drawBg() {
 	noiseSeed(seed);
 	randomSeed(seed);
 	// Layer 0
-	let bgns = window.$fxhashFeatures.background_noise_size;
+	let bgns = window.$fxhashFeatures["Background noise size of layer 1"];
 	layer1.translate(width / 2 - 600, height / 2 + 1000);
 	for (let x = -width / 2 + 600; x < width / 2 + 600; x += 10) {
 		for (let y = -height / 2 - 1000; y < height / 2 - 1000; y += 10) {
@@ -189,7 +196,7 @@ function drawBg() {
 
 	let ns = 0.001;
 	// figure diameter
-	let diam = window.$fxhashFeatures.noise_wave_diameter;
+	let diam = window.$fxhashFeatures["Noise wave diameter of layer 2"];
 
 	// Layer 1 --------------------------------------------
 	layer2.push();
@@ -227,13 +234,14 @@ function drawBg() {
 	// Layer 2 -> Harmo settings -----------------------
 	harmo = new Harmonograph();
 	// Pendulum 1 center
-	harmo.cx = window.$fxhashFeatures.pendulum_center_x;
+	//harmo.cx = window.$fxhashFeatures.pendulum_center_x;
 	// Pendulum asc
-	harmo.vel_theta = window.$fxhashFeatures.pendulum1_theta_vel;
-	harmo.vel_phi = window.$fxhashFeatures.pendulum1_phi_vel;
-	harmo.vel_alpha = window.$fxhashFeatures.pendulum2_alpha_vel;
+	harmo.vel_theta = window.$fxhashFeatures["Pendulum 1 theta vel"];
+	harmo.vel_phi = window.$fxhashFeatures["Pendulum 1 phi vel"];
+	harmo.vel_alpha = window.$fxhashFeatures["Pendulum 2 angle vel"];
 	// Friction
-	harmo.friction = window.$fxhashFeatures.pendulum_friction;
+	harmo.friction = window.$fxhashFeatures["Pendulum friction"];
+	harmo.minfricc = random(0.2, 0.5);
 	// Noise resolution
 	harmo.noise_size2x = random(0.001, 0.002);
 	harmo.noise_size2y = random(0.001, 0.002);
@@ -255,6 +263,12 @@ function getPrint() {
 	saveCanvas(cv, "PNH_" + date, "png");
 }
 function keyReleased() {
+	if (keyCode == UP_ARROW) {
+		laps = laps >= 1800 ? 1800 : laps + 200;
+	}
+	if (keyCode == DOWN_ARROW) {
+		laps = laps <= 200 ? 200 : laps - 200;
+	}
 	if (key == "4" && AR != SQ) {
 		AR = SQ;
 		resizeCanvas(AR.x, AR.y);
@@ -299,7 +313,7 @@ function keyReleased() {
 		getPrint();
 	}
 }
-// https://openprocessing.org/sketch/452148
+// Harmonograph
 class Harmonograph {
 	constructor() {
 		this.theta = 0.0;
@@ -313,7 +327,7 @@ class Harmonograph {
 		this.multr = 1;
 		this.x = 0.0;
 		this.y = 0.0;
-
+		this.minfricc = 0;
 		// Centro del plano / Center of plane
 		this.cx = 0.0;
 		this.cy = 0.0;
@@ -329,13 +343,12 @@ class Harmonograph {
 		this.n2;
 		this.fr = true;
 	}
-	setVelPendulum1() {}
 	update() {
 		this.n = noise(this.x * this.noise_size, this.y * this.noise_size);
 		this.n2 = noise(this.x * this.noise_size2x, this.y * this.noise_size2y);
 		this.noise_size = map(this.n2, 0, 1, 0.002, 0.008);
-		let rx1 = map(this.n, 0, 1, 2160 * 0.01, 2160 * 0.1) * this.multr;
-		let ry1 = map(this.n, 0, 1, 2160 * 0.1, 2160 * 0.01) * this.multr;
+		let rx1 = map(this.n, 0, 1, 2160 * 0.06, 2160 * 0.1) * this.multr;
+		let ry1 = map(this.n, 0, 1, 2160 * 0.1, 2160 * 0.06) * this.multr;
 		let rx2 = map(this.n, 0, 1, 2160 * 0.25, 2160 * 0.4) * this.multr;
 		let ry2 = map(this.n, 0, 1, 2160 * 0.25, 2160 * 0.4) * this.multr;
 		// Pendulum 1
@@ -347,7 +360,7 @@ class Harmonograph {
 
 		this.theta += this.vel_theta;
 		this.phi += this.vel_phi;
-		if (this.multr < 0.1 && this.fr) {
+		if (this.multr < this.minfricc && this.fr) {
 			this.fr = false;
 		}
 		if (this.multr > 0.99 && !this.fr) {

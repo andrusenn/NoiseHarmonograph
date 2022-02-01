@@ -127,7 +127,7 @@ function draw() {
 	image(nsig, 0, 0);
 
 	// ----------------------
-	if (frameCount > 400) {
+	if (frameCount >= 300) {
 		if (!isFxpreview && !pic_preview) {
 			fxpreview();
 			// Extra check. In loop method it's scary :0 o maybe no problem :)
